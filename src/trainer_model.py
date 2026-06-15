@@ -1,8 +1,12 @@
 import pandas as pd
 import os
 import joblib
+from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score, recall_score
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.svm import SVC # Importamos Support Vector Classifier
 
 def train_and_save_models():
@@ -20,29 +24,52 @@ def train_and_save_models():
     X_train = pd.read_csv(os.path.join(processed_data_path, 'X_train.csv'))
     # .values.ravel() convierte la tabla en un vector simple para el modelo
     y_train = pd.read_csv(os.path.join(processed_data_path, 'y_train.csv')).values.ravel()
+    X_test = pd.read_csv(os.path.join(processed_data_path, 'X_test.csv'))
+    y_test = pd.read_csv(os.path.join(processed_data_path, 'y_test.csv')).values.ravel()
 
-    # 3. TRANSFORMACIÓN DE DATOS (Dummies)
-    # Convierte texto (ej. "DSL", "Male") a columnas numéricas (0 y 1)
-    X_train = pd.get_dummies(X_train)
-    print(f"Datos preparados. Columnas procesadas: {X_train.shape[1]}")
+    # 3. TRANSFORMACIÓN DE DATOS
+    # Codifica variables categóricas y escala numéricas dentro del propio modelo
+    categorical_features = X_train.select_dtypes(include=['object']).columns.tolist()
+    numeric_features = X_train.select_dtypes(exclude=['object']).columns.tolist()
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', StandardScaler(), numeric_features),
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
+        ]
+    )
+
+    print(f"Datos preparados. Columnas numéricas: {len(numeric_features)} | categóricas: {len(categorical_features)}")
 
     # 4. ENTRENAMIENTO DE MODELOS
     # Definimos el diccionario con los 3 algoritmos: Regresión Logística, Random Forest y SVM
     modelos = {
         "logistic_regression": LogisticRegression(max_iter=1000),
         "random_forest": RandomForestClassifier(n_estimators=100, random_state=42),
-        "svm": SVC(probability=True) # probability=True permite calcular la probabilidad del Churn
+        "svm": SVC()
     }
 
     # Entrena cada modelo y guárdalo
     for nombre, modelo in modelos.items():
         print(f"Entrenando {nombre}...")
-        modelo.fit(X_train, y_train)
+        pipeline = Pipeline([
+            ('preprocessor', preprocessor),
+            ('model', modelo),
+        ])
+        pipeline.fit(X_train, y_train)
+
+        y_pred = pipeline.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+        print(
+            f" {nombre} -> accuracy: {accuracy:.4f} | recall: {recall:.4f} | f1: {f1:.4f}"
+        )
         
         # 5. GUARDADO (SERIALIZACIÓN)
-        # Joblib "congela" el modelo entrenado en un archivo .pkl para usarlo después
+        # Joblib "congela" el pipeline completo para usarlo después con datos crudos
         ruta_modelo = os.path.join(models_path, f"{nombre}.pkl")
-        joblib.dump(modelo, ruta_modelo)
+        joblib.dump(pipeline, ruta_modelo)
         print(f" {nombre} guardado en: {ruta_modelo}")
 
 if __name__ == "__main__":
