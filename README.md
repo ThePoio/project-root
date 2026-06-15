@@ -56,6 +56,17 @@ Para el desarrollo del componente de ingeniería de datos, se utilizó **Gemini*
     *   Guardar el modelo entrenado en la carpeta `models/` usando `joblib`.
 *   **Entregable:** Función `train_and_save_model(X_train, y_train, X_test, y_test, config)` que guarda el `.pkl` y retorna un diccionario de métricas.
 
+### LLM Contribution - ML Engineer (Víctor)
+
+
+* **Arreglo de datos:** Quitamos dummies en `data_loader.py`.
+* **Creación de modelos:** Programé `trainer_model.py`.
+* **Algoritmos:** Entrenamos Random Forest, Regresión Logística y SVM.
+* **Automatización:** El código crea la carpeta `models` solo.
+* **Control de versiones:** Aplicamos comandos Git en VS Code.
+
+
+
 ### 3. ⚙️ MLOps Engineer (`src/main.py` y `config/`)
 **Tu misión:** Orquestar el flujo y gestionar la configuración externa.
 
@@ -134,3 +145,28 @@ churn-mlops-project/
 
 
 ¡Éxito con la clase! Es un ejercicio excelente para ver quién realmente entiende la integración de sistemas. 🚀
+
+
+
+
+
+
+
+
+
+############# Nota1 (victor)  lo de aca abajo es una pequeña guia para hacer commits desde la terminal de VSC
+
+# Entra a tu carpeta Local
+cd "C:\Users\User\Desktop\Proyecto Colaborativo MLOps Predicción de Churn (Abandono de Clientes)"
+
+# Crea y cambia de rama
+git checkout -b feature/ml-engineer    (qui depende del rol de cada uno)
+
+# Agrega los archivos modificados
+git add src/data_loader.py src/trainer_model.py README.md        (estos son los que actualicé)
+
+# Guarda los cambios
+git commit -m "Agrega modelos y ajusta loader"         el titulo de las modificaciones y/o actualizaciones que hicimos
+
+# Sube al repositorio
+git push -u origin feature/ml-engineer

@@ -1,37 +1,53 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import os
 
-def load_data(config: dict):
-    """
-    Carga el dataset, lo procesa y lo divide en train/test.
-    """
-    df = pd.read_csv(config['data_loader']['raw_data_path'])
+def cargar_y_limpiar_datos(config):
+    # Definir rutas
+    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ruta = os.path.join(base, 'data', 'raw', 'WA_Fn-UseC_-Telco-Customer-Churn.csv')
 
-    df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
+    # Cargar CSV
+    df = pd.read_csv(ruta)
 
-    df = df.drop(columns=['customerID'])
+    # 1. Limpiar TotalCharges: convertir a numérico y rellenar vacíos
+    df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce').fillna(0)
 
-    X = df.drop(columns=['Churn'])
+    # 2. Eliminar columna innecesaria
+    if 'customerID' in df.columns:
+        df.drop('customerID', axis=1, inplace=True)
+
+    # 3. Solo convertir el target (Churn) a binario
+    df['Churn'] = df['Churn'].map({'Yes': 1, 'No': 0})
+
+    # Separar X e y
+    X = df.drop('Churn', axis=1)
     y = df['Churn']
 
+    # Dividir datos (manteniendo la aleatoriedad según configuración)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, 
-        test_size=config['data_loader']['test_size'], 
-        random_state=config['data_loader']['random_state'], 
-        stratify=y
+        X, y,
+        test_size=config.get('test_size', 0.2),
+        random_state=config.get('random_state', 42)
     )
 
-    median_train = X_train['TotalCharges'].median()
-    X_train['TotalCharges'] = X_train['TotalCharges'].fillna(median_train)
-    X_test['TotalCharges'] = X_test['TotalCharges'].fillna(median_train)
-
-    mapping_gender = {'Female': 1, 'Male': 0}
-    mapping_yes_no = {'Yes': 1, 'No': 0}
-    X_train['gender'] = X_train['gender'].map(mapping_gender)
-    X_test['gender'] = X_test['gender'].map(mapping_gender)
-    X_train['Partner'] = X_train['Partner'].map(mapping_yes_no)
-    X_test['Partner'] = X_test['Partner'].map(mapping_yes_no)
-    y_train = y_train.map(mapping_yes_no)
-    y_test = y_test.map(mapping_yes_no)
+    # Guardar resultados
+    guardar_datos_procesados(base, X_train, X_test, y_train, y_test)
 
     return X_train, X_test, y_train, y_test
+
+def guardar_datos_procesados(base_path, X_train, X_test, y_train, y_test):
+    ruta_salida = os.path.join(base_path, 'data', 'processed')
+    os.makedirs(ruta_salida, exist_ok=True)
+    
+    # Guardar sin transformar categorías
+    X_train.to_csv(os.path.join(ruta_salida, 'X_train.csv'), index=False)
+    X_test.to_csv(os.path.join(ruta_salida, 'X_test.csv'), index=False)
+    y_train.to_csv(os.path.join(ruta_salida, 'y_train.csv'), index=False)
+    y_test.to_csv(os.path.join(ruta_salida, 'y_test.csv'), index=False)
+    
+    print(f" Archivos generados correctamente en: {ruta_salida}")
+
+if __name__ == "__main__":
+    config = {'test_size': 0.2, 'random_state': 42}
+    cargar_y_limpiar_datos(config)
