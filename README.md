@@ -110,6 +110,32 @@ churn-mlops-project/
 
 ---
 
+## 🛡️ QA & Producción: Predicción y Tests
+
+El **Rol 4 (QA & Production Engineer)** aporta el script de inferencia y la suite de tests.
+
+*   **Predecir para un cliente nuevo** (usa un modelo `.pkl` ya entrenado en `models/`):
+
+    ```bash
+    python -m src.predict
+    ```
+
+    Detecta automáticamente el modelo disponible (preferencia: `random_forest` →
+    `logistic_regression` → `svm`) e imprime la predicción del cliente de ejemplo.
+    Si no hay ningún modelo entrenado, muestra un mensaje claro para correr
+    `python -m src.main` primero.
+
+*   **Correr los tests**:
+
+    ```bash
+    pytest test/ -v
+    ```
+
+    Los tests que dependen del CSV crudo o de modelos entrenados se **omiten**
+    limpiamente si esos artefactos no están presentes.
+
+---
+
 ## ✅ Checklist de Entrega
 
 *   [ ] El comando `python -m src.main` ejecuta todo el pipeline sin errores.
