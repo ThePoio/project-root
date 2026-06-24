@@ -1,0 +1,6 @@
+# Panel de control del proyecto - Churn Prediction
+
+data_loader:
+  raw_data_path: "../data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+  test_size: 0.20          # El porcentaje de datos para prueba (20%)
+  random_state: 42         # La semilla para que la división siempre sea igual

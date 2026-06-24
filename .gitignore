@@ -55,6 +55,13 @@ cover/
 *.mo
 *.pot
 
+# Raw data
+data/raw/*.csv
+data_churn.zip
+
+# Processed data outputs
+data/processed/*.csv
+
 # Django stuff:
 *.log
 local_settings.py

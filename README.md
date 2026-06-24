@@ -34,6 +34,18 @@ Cada miembro del equipo es responsable de un módulo específico. Deben definir 
     *   **División:** Separar en Train/Test usando `test_size` y `random_state` definidos en `config/params.yaml`.
 *   **Entregable:** Función `load_and_preprocess_data(config)` que retorna `X_train, X_test, y_train, y_test`.
 
+#### LLM Contribution - Data Engineer (Carlo)
+
+Para el desarrollo del componente de ingeniería de datos, se utilizó **Gemini** como asistente de desarrollo y arquitectura. A continuación se detallan las tareas específicas en las que colaboró la herramienta:
+
+* **Estructuración del Pipeline de Datos (ETL):** Se utilizó para diseñar la lógica de la función `load_data` en `src/data_loader.py`, asegurando que la conversión de `TotalCharges` a numérico (manejando espacios vacíos con `errors='coerce'`) e imputación de medianas se realizara correctamente en Pandas.
+* **Prevención de Fuga de Datos (*Data Leakage*):** Ayudó a definir la arquitectura del flujo de preprocesamiento, estableciendo que la división del dataset (`train_test_split`) debe ejecutarse **antes** del cálculo de la mediana e imputación de nulos, garantizando la integridad del modelo.
+* **Integración de Configuración Dinámica:** Colaboró en el diseño de la lectura del diccionario `config` mapeado desde `params.yaml` para evitar valores fijos (*hardcoding*) en los parámetros `test_size` y `random_state`.
+* **Soporte y Flujo de Git:** Se utilizó como guía paso a paso para resolver la anidación accidental de repositorios locales, la creación limpia de la rama `feature/data-engineer` en el fork, y el manejo de historial mediante buenas prácticas de commits.
+
+
+
+
 ### 2. 🧠 ML Engineer (`src/model_trainer.py`)
 **Tu misión:** Experimentar con algoritmos y guardar el mejor modelo.
 
